@@ -15,6 +15,7 @@ import {
   removeUserFromLocalStorage,
   saveUserToLocalStorage,
 } from "./helpers.js";
+import { postsHost } from "./api.js";
 
 export let user = getUserFromLocalStorage();
 export let page = null;
@@ -90,6 +91,9 @@ const renderApp = () => {
         // Заменили imageFile на imageUrl
         const token = getToken();
 
+        console.log("user.token:", user.token);
+        console.log("getToken():", token);
+
         if (!token) {
           alert("Вы должны быть авторизованы, чтобы добавить пост.");
           return;
@@ -106,14 +110,19 @@ const renderApp = () => {
         }
 
         console.log("Отправляем новый пост...");
+        console.log("Описание:", description);
+        console.log("URL картинки:", imageUrl);
+        console.log("Token:", getToken());
 
-        fetch("https://webdev-hw-api.vercel.app/api/v1/prod/instapro", {
+        fetch(postsHost, {
           method: "POST",
           headers: {
             Authorization: token,
-            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ description, imageUrl }), // Передаём уже готовый imageUrl
+          body: JSON.stringify({
+            description: description,
+            imageUrl: imageUrl,
+          }), // Передаём уже готовый imageUrl
         })
           .then(async (response) => {
             console.log("Ответ сервера при добавлении поста:", response);
