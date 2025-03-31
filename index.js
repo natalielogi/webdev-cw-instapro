@@ -21,8 +21,7 @@ export let page = null;
 export let posts = [];
 
 const getToken = () => {
-  const token = user ? `Bearer ${user.token}` : undefined;
-  return token;
+  return user ? `Bearer ${user.token}` : undefined;
 };
 
 export const logout = () => {
@@ -31,9 +30,6 @@ export const logout = () => {
   goToPage(POSTS_PAGE);
 };
 
-/**
- * Включает страницу приложения
- */
 export const goToPage = (newPage, data) => {
   if (
     [
@@ -45,7 +41,6 @@ export const goToPage = (newPage, data) => {
     ].includes(newPage)
   ) {
     if (newPage === ADD_POSTS_PAGE) {
-      /* Если пользователь не авторизован, то отправляем его на страницу авторизации перед добавлением поста */
       page = user ? ADD_POSTS_PAGE : AUTH_PAGE;
       return renderApp();
     }
@@ -66,17 +61,8 @@ export const goToPage = (newPage, data) => {
         });
     }
 
-    if (newPage === USER_POSTS_PAGE) {
-      // @@TODO: реализовать получение постов юзера из API
-      console.log("Открываю страницу пользователя: ", data.userId);
-      page = USER_POSTS_PAGE;
-      posts = [];
-      return renderApp();
-    }
-
     page = newPage;
     renderApp();
-
     return;
   }
 
@@ -85,13 +71,6 @@ export const goToPage = (newPage, data) => {
 
 const renderApp = () => {
   const appEl = document.getElementById("app");
-  if (page === LOADING_PAGE) {
-    return renderLoadingPageComponent({
-      appEl,
-      user,
-      goToPage,
-    });
-  }
 
   if (page === AUTH_PAGE) {
     return renderAuthPageComponent({
@@ -101,8 +80,6 @@ const renderApp = () => {
         saveUserToLocalStorage(user);
         goToPage(POSTS_PAGE);
       },
-      user,
-      goToPage,
     });
   }
 
@@ -110,23 +87,55 @@ const renderApp = () => {
     return renderAddPostPageComponent({
       appEl,
       onAddPostClick({ description, imageUrl }) {
-        // @TODO: реализовать добавление поста в API
-        console.log("Добавляю пост...", { description, imageUrl });
-        goToPage(POSTS_PAGE);
+        // Заменили imageFile на imageUrl
+        const token = getToken();
+
+        if (!token) {
+          alert("Вы должны быть авторизованы, чтобы добавить пост.");
+          return;
+        }
+
+        if (!description.trim()) {
+          alert("Описание не может быть пустым.");
+          return;
+        }
+
+        if (!imageUrl) {
+          alert("Пожалуйста, загрузите изображение.");
+          return;
+        }
+
+        console.log("Отправляем новый пост...");
+
+        fetch("https://webdev-hw-api.vercel.app/api/v1/prod/instapro", {
+          method: "POST",
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ description, imageUrl }), // Передаём уже готовый imageUrl
+        })
+          .then(async (response) => {
+            console.log("Ответ сервера при добавлении поста:", response);
+            if (!response.ok) {
+              throw new Error(
+                `Ошибка при добавлении поста: ${response.status}`
+              );
+            }
+
+            console.log("Пост успешно добавлен!");
+            goToPage(POSTS_PAGE);
+          })
+          .catch((error) => {
+            console.error("Ошибка:", error);
+            alert(error.message);
+          });
       },
     });
   }
 
   if (page === POSTS_PAGE) {
-    return renderPostsPageComponent({
-      appEl,
-    });
-  }
-
-  if (page === USER_POSTS_PAGE) {
-    // @TODO: реализовать страницу с фотографиями отдельного пользвателя
-    appEl.innerHTML = "Здесь будет страница фотографий пользователя";
-    return;
+    return renderPostsPageComponent({ appEl });
   }
 };
 
