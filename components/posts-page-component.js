@@ -1,7 +1,7 @@
 import { POSTS_PAGE, USER_POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
 import { getPosts, toggleLike, postsHost } from "../api.js";
-import { goToPage } from "../index.js";
+import { goToPage, user } from "../index.js";
 
 export function renderPostsPageComponent({ appEl, token, userId }) {
   console.log("Загружаем посты...");
@@ -17,10 +17,10 @@ export function renderPostsPageComponent({ appEl, token, userId }) {
 
       const postsHtml = filteredPosts
         .map((post) => {
-          const likesCount =
-            post.likes && Array.isArray(post.likes)
-              ? post.likes.length
-              : post.likes || 0;
+          const likesDisplay =
+            post.likes && Array.isArray(post.likes) && post.likes.length > 0
+              ? post.likes.map((user) => user.name).join(", ")
+              : "0";
 
           return `
           <li class="post">
@@ -42,7 +42,7 @@ export function renderPostsPageComponent({ appEl, token, userId }) {
                 }">
               </button>
               <p class="post-likes-text">
-                Нравится: <strong>${likesCount}</strong>
+                Нравится: <strong>${likesDisplay}</strong>
               </p>
             </div>
             <p class="post-text">
