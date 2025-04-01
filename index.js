@@ -152,7 +152,10 @@ const renderApp = () => {
   }
 
   if (page === POSTS_PAGE) {
-    return renderPostsPageComponent({ appEl });
+    return renderPostsPageComponent({
+      appEl,
+      token: getToken(),
+    });
   }
 };
 

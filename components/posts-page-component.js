@@ -1,6 +1,6 @@
-import { USER_POSTS_PAGE } from "../routes.js";
+import { POSTS_PAGE, USER_POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
-import { getPosts } from "../api.js";
+import { getPosts, toggleLike, postsHost } from "../api.js";
 import { goToPage } from "../index.js";
 
 export function renderPostsPageComponent({ appEl, token, userId }) {
@@ -10,13 +10,18 @@ export function renderPostsPageComponent({ appEl, token, userId }) {
     .then((posts) => {
       console.log("Актуальный список постов:", posts);
 
-      let filteredPosts = posts
+      let filteredPosts = posts;
       if (userId) {
-        filteredPosts = posts.filter((post) => post.user.id === userId)
+        filteredPosts = posts.filter((post) => post.user.id === userId);
       }
 
       const postsHtml = filteredPosts
         .map((post) => {
+          const likesCount =
+            post.likes && Array.isArray(post.likes)
+              ? post.likes.length
+              : post.likes || 0;
+
           return `
           <li class="post">
             <div class="post-header" data-user-id="${post.user.id}">
@@ -29,13 +34,15 @@ export function renderPostsPageComponent({ appEl, token, userId }) {
               <img class="post-image" src="${post.imageUrl}">
             </div>
             <div class="post-likes">
-              <button data-post-id="${post.id}" class="like-button">
+              <button data-post-id="${post.id}" data-is-liked="${
+            post.isLiked
+          }" class="like-button">
                 <img src="./assets/images/${
                   post.isLiked ? "like-active.svg" : "like-not-active.svg"
                 }">
               </button>
               <p class="post-likes-text">
-                Нравится: <strong>${post.likes}</strong>
+                Нравится: <strong>${likesCount}</strong>
               </p>
             </div>
             <p class="post-text">
@@ -61,13 +68,35 @@ export function renderPostsPageComponent({ appEl, token, userId }) {
         element: document.querySelector(".header-container"),
       });
 
-      for (let userEl of document.querySelectorAll(".post-header")) {
+      document.querySelectorAll(".post-header").forEach((userEl) => {
         userEl.addEventListener("click", () => {
           goToPage(USER_POSTS_PAGE, {
             userId: userEl.dataset.userId,
           });
         });
-      }
+      });
+      document.querySelectorAll(".like-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          const postId = button.dataset.postId;
+          const isLiked = button.dataset.isLiked === "true";
+          console.log(
+            "Нажат лайк для поста:",
+            postId,
+            "Текущий статус:",
+            isLiked
+          );
+
+          toggleLike({ token, postId, isLiked })
+            .then((updatedPost) => {
+              console.log("Обновленный пост:", updatedPost);
+              goToPage(POSTS_PAGE);
+            })
+            .catch((error) => {
+              console.error("Ошибка при переключении лайка:", error);
+              alert(error.message);
+            });
+        });
+      });
     })
     .catch((error) => {
       console.error("Ошибка загрузки постов:", error);
