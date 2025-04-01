@@ -89,7 +89,7 @@ export function renderPostsPageComponent({ appEl, token, userId }) {
           toggleLike({ token, postId, isLiked })
             .then((updatedPost) => {
               console.log("Обновленный пост:", updatedPost);
-              goToPage(POSTS_PAGE);
+              updatedPostUI(updatedPost);
             })
             .catch((error) => {
               console.error("Ошибка при переключении лайка:", error);
@@ -97,6 +97,35 @@ export function renderPostsPageComponent({ appEl, token, userId }) {
             });
         });
       });
+
+      function updatedPostUI(updatedPost) {
+        const button = document.querySelector(
+          `.like-button[data-post-id="${updatedPost.id}"]`
+        );
+        if (button) {
+          button.dataset.isLiked = updatedPost.isLiked;
+          const imgEl = button.querySelector("img");
+          if (imgEl) {
+            imgEl.src = `./assets/images/${
+              updatedPost.isLiked ? "like-active.svg" : "like-not-active.svg"
+            }`;
+          }
+        }
+
+        const postli = button.closest("li");
+        if (postli) {
+          const likesTextEl = postli.querySelector(".post-likes-text strong");
+          if (likesTextEl) {
+            const likedUsers =
+              updatedPost.likes &&
+              Array.isArray(updatedPost.likes) &&
+              updatedPost.likes.length > 0
+                ? updatedPost.likes.map((user) => user.name).join(", ")
+                : "";
+            likesTextEl.textContent = likedUsers;
+          }
+        }
+      }
     })
     .catch((error) => {
       console.error("Ошибка загрузки постов:", error);
