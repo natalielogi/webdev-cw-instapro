@@ -67,3 +67,21 @@ export function uploadImage({ file }) {
     return response.json();
   });
 }
+
+export function toggleLike({ token, postId, isLiked }) {
+  const action = isLiked ? "dislike" : "like";
+  return fetch(`${postsHost}/${postId}/${action}`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+  }).then(async (response) => {
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(
+        data.error || `Ошибка при переключении лайка: ${response.status}`
+      );
+    }
+    return data.post;
+  });
+}
