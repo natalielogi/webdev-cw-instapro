@@ -62,6 +62,14 @@ export const goToPage = (newPage, data) => {
         });
     }
 
+    if (newPage === USER_POSTS_PAGE) {
+      return renderPostsPageComponent({
+        appEl: document.getElementById("app"),
+        token: getToken(),
+        userId: data.userId,
+      });
+    }
+
     page = newPage;
     renderApp();
     return;

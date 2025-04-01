@@ -3,14 +3,19 @@ import { renderHeaderComponent } from "./header-component.js";
 import { getPosts } from "../api.js";
 import { goToPage } from "../index.js";
 
-export function renderPostsPageComponent({ appEl, token }) {
+export function renderPostsPageComponent({ appEl, token, userId }) {
   console.log("Загружаем посты...");
 
   getPosts({ token })
     .then((posts) => {
       console.log("Актуальный список постов:", posts);
 
-      const postsHtml = posts
+      let filteredPosts = posts
+      if (userId) {
+        filteredPosts = posts.filter((post) => post.user.id === userId)
+      }
+
+      const postsHtml = filteredPosts
         .map((post) => {
           return `
           <li class="post">
