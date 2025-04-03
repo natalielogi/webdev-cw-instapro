@@ -2,6 +2,8 @@ import { POSTS_PAGE, USER_POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
 import { getPosts, toggleLike, postsHost } from "../api.js";
 import { goToPage, user } from "../index.js";
+import { formatDistanceToNow } from "date-fns";
+import { ru } from "date-fns/locale";
 
 export function renderPostsPageComponent({ appEl, token, userId }) {
   console.log("Загружаем посты...");
@@ -50,8 +52,11 @@ export function renderPostsPageComponent({ appEl, token, userId }) {
               ${post.description}
             </p>
             <p class="post-date">
-              ${new Date(post.createdAt).toLocaleString()}
-            </p>
+            ${formatDistanceToNow(new Date(post.createdAt), {
+              addSuffix: true,
+              locale: ru,
+            })}
+          </p>          
           </li>`;
         })
         .join("");
