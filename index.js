@@ -47,19 +47,25 @@ export const goToPage = (newPage, data) => {
     }
 
     if (newPage === POSTS_PAGE) {
-      page = LOADING_PAGE;
-      renderApp();
+      if (posts && posts.length > 0) {
+        page = POSTS_PAGE;
+        renderApp();
+        return;
+      } else {
+        page = LOADING_PAGE;
+        renderApp();
 
-      return getPosts({ token: getToken() })
-        .then((newPosts) => {
-          page = POSTS_PAGE;
-          posts = newPosts;
-          renderApp();
-        })
-        .catch((error) => {
-          console.error(error);
-          goToPage(POSTS_PAGE);
-        });
+        return getPosts({ token: getToken() })
+          .then((newPosts) => {
+            page = POSTS_PAGE;
+            posts = newPosts;
+            renderApp();
+          })
+          .catch((error) => {
+            console.error(error);
+            goToPage(POSTS_PAGE);
+          });
+      }
     }
 
     if (newPage === USER_POSTS_PAGE) {
