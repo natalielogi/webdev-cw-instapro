@@ -105,9 +105,6 @@ const renderApp = () => {
         // Заменили imageFile на imageUrl
         const token = getToken();
 
-        console.log("user.token:", user.token);
-        console.log("getToken():", token);
-
         if (!token) {
           alert("Вы должны быть авторизованы, чтобы добавить пост.");
           return;
@@ -122,11 +119,6 @@ const renderApp = () => {
           alert("Пожалуйста, загрузите изображение.");
           return;
         }
-
-        console.log("Отправляем новый пост...");
-        console.log("Описание:", description);
-        console.log("URL картинки:", imageUrl);
-        console.log("Token:", getToken());
 
         fetch(postsHost, {
           method: "POST",
@@ -146,7 +138,6 @@ const renderApp = () => {
               );
             }
 
-            console.log("Пост успешно добавлен!");
             goToPage(POSTS_PAGE);
           })
           .catch((error) => {

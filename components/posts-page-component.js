@@ -6,8 +6,6 @@ import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 
 export function renderPostsPageComponent({ appEl, token, userId }) {
-  console.log("Загружаем посты...");
-
   getPosts({ token })
     .then((posts) => {
       console.log("Актуальный список постов:", posts);
@@ -84,13 +82,6 @@ export function renderPostsPageComponent({ appEl, token, userId }) {
         button.addEventListener("click", () => {
           const postId = button.dataset.postId;
           const isLiked = button.dataset.isLiked === "true";
-          console.log(
-            "Нажат лайк для поста:",
-            postId,
-            "Текущий статус:",
-            isLiked
-          );
-
           toggleLike({ token, postId, isLiked })
             .then((updatedPost) => {
               console.log("Обновленный пост:", updatedPost);
