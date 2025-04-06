@@ -1,6 +1,10 @@
 import { renderHeaderComponent } from "./header-component.js";
 import { renderUploadImageComponent } from "./upload-image-component.js";
 
+function sanitizeInput(input) {
+  return input.replace(/<[^>]*>/g, "");
+}
+
 export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
   let imageUrl = ""; // Будем сохранять URL загруженной картинки
 
@@ -31,9 +35,8 @@ export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
     });
 
     document.getElementById("add-button").addEventListener("click", () => {
-      const description = document
-        .querySelector(".post-description")
-        .value.trim();
+      const descriptionElement = document.querySelector(".post-description");
+      const description = descriptionElement.value.trim();
 
       if (!imageUrl) {
         alert("Пожалуйста, загрузите изображение.");
@@ -45,7 +48,9 @@ export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
         return;
       }
 
-      onAddPostClick({ description, imageUrl });
+      const sanitizedDescription = sanitizeInput(description);
+      
+      onAddPostClick({ description: sanitizedDescription, imageUrl });
     });
   };
 

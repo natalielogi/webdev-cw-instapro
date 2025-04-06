@@ -48,9 +48,9 @@ export function renderPostsPageComponent({ appEl, token, userId }) {
               </p>
             </div>
             <p class="post-text">
-              <span class="user-name">${post.user.name}</span>
-              ${post.description}
-            </p>
+  <span class="user-name">${post.user.name}</span>
+  ${post.description}
+</p>
             <p class="post-date">
             ${formatDistanceToNow(new Date(post.createdAt), {
               addSuffix: true,
